@@ -181,16 +181,20 @@ build-all-in-one-linux: build_ui
 build-all-in-one: elasticsearch-mappings
 	CGO_ENABLED=0 installsuffix=cgo go build -tags ui -o ./cmd/all-in-one/all-in-one-$(GOOS) $(BUILD_INFO) ./cmd/all-in-one/main.go
 
+.PHONY: build-all-in-one-linux-arm64
+build-all-in-one-arm64: 
+	CGO_ENABLED=0 GOARCH=arm64 installsuffix=cgo go build -tags ui -o ./cmd/all-in-one/all-in-one-$(GOOS)-$(GOARCH) $(BUILD_INFO) ./cmd/all-in-one/main.go
+
 .PHONY: build-agent
 build-agent:
-	CGO_ENABLED=0 installsuffix=cgo go build -o ./cmd/agent/agent-$(GOOS) $(BUILD_INFO) ./cmd/agent/main.go
+	CGO_ENABLED=0 installsuffix=cgo go build -o ./cmd/agent/agent-$(GOOS)-$(GOARCH) $(BUILD_INFO) ./cmd/agent/main.go
 
 .PHONY: build-query
 build-query:
 	CGO_ENABLED=0 installsuffix=cgo go build -tags ui -o ./cmd/query/query-$(GOOS) $(BUILD_INFO) ./cmd/query/main.go
 
 .PHONY: build-collector
-build-collector: elasticsearch-mappings
+build-collector:
 	CGO_ENABLED=0 installsuffix=cgo go build -o ./cmd/collector/collector-$(GOOS) $(BUILD_INFO) ./cmd/collector/main.go
 
 .PHONY: build-ingester
@@ -203,6 +207,10 @@ docker-no-ui: build-binaries-linux build-crossdock-linux
 
 .PHONY: docker
 docker: build_ui docker-no-ui
+
+.PHONY: build-binaries-linux-arm64
+build-binaries-linux-arm64:
+	GOOS=linux GOARCH=arm64 $(MAKE) build-platform-binaries
 
 .PHONY: build-binaries-linux
 build-binaries-linux:
